@@ -29,6 +29,12 @@ build/
 Thumbs.db
 .claude/
 
+# Environment variables / secrets (never commit real credentials)
+.env
+.env.local
+*.env
+!.env.example
+
 # Postman desktop app (local workspace sync scaffolding)
 **/.postman/
 docs/postman/postman/
