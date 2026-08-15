@@ -1,0 +1,30 @@
+services:
+  mongo:
+    image: mongo:7.0
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      # spring.mongodb.uri es la propiedad correcta en Spring Boot 4.1 (ver paso 4);
+      # spring.data.mongodb.uri quedó deprecada con nivel "error" y ya no se enlaza.
+      SPRING_MONGODB_URI: mongodb://mongo:27017/franquicias_db
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+volumes:
+  mongo_data:
