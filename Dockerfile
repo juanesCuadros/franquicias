@@ -29,4 +29,4 @@ RUN chown franquicias:franquicias app.jar
 
 USER franquicias
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-Xmx300m", "-Xss512k", "-XX:+UseSerialGC", "-jar", "app.jar"]
