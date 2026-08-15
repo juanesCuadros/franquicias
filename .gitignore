@@ -39,3 +39,12 @@ Thumbs.db
 **/.postman/
 docs/postman/postman/
 /postman/
+
+# Terraform (infra/) -- credenciales y estado local, nunca al repo.
+# infra/.terraform.lock.hcl NO se ignora a propósito: la recomendación
+# oficial de HashiCorp es versionarlo, para instalaciones reproducibles
+# del provider entre máquinas/CI y evitar upgrades silenciosos.
+infra/terraform.tfvars
+infra/.terraform/
+infra/*.tfstate
+infra/*.tfstate.backup
