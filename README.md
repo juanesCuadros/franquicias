@@ -34,7 +34,7 @@ API REST reactiva para la gestión de franquicias, sus sucursales y los producto
 - [x] Endpoint para actualizar el nombre de una franquicia — `PATCH /api/franquicias/{franquiciaId}`.
 - [x] Endpoint para actualizar el nombre de una sucursal — `PATCH /api/franquicias/{franquiciaId}/sucursales/{sucursalId}`.
 - [x] Endpoint para actualizar el nombre de un producto — `PATCH /api/franquicias/{franquiciaId}/sucursales/{sucursalId}/productos/{productoId}`.
-- [ ] IaC con Terraform — **no implementado**, fuera de alcance de esta entrega.
+- [x] IaC con Terraform — cluster de MongoDB Atlas (M0) y regla de acceso de red definidos como código en `infra/`. Validado con `terraform plan` (sin `apply`, para no duplicar el cluster productivo ya existente); ver `infra/README.md` para el detalle de cómo aplicarlo desde cero.
 - [x] Despliegue en la nube — API en Render conectada a MongoDB Atlas. URL pública: https://franquicias-cj97.onrender.com
 
 ## Arquitectura
