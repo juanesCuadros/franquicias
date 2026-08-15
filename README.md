@@ -13,6 +13,8 @@ API REST reactiva para la gestión de franquicias, sus sucursales y los producto
 | Base de datos               | MongoDB 7.0                       |
 | Build                       | Maven (con Maven Wrapper)         |
 | Contenedores                | Docker / Docker Compose           |
+| Base de datos (producción)  | MongoDB Atlas (tier M0)           |
+| Hosting                     | Render (tier gratuito)            |
 
 ## Criterios de aceptación cumplidos
 
@@ -33,7 +35,7 @@ API REST reactiva para la gestión de franquicias, sus sucursales y los producto
 - [x] Endpoint para actualizar el nombre de una sucursal — `PATCH /api/franquicias/{franquiciaId}/sucursales/{sucursalId}`.
 - [x] Endpoint para actualizar el nombre de un producto — `PATCH /api/franquicias/{franquiciaId}/sucursales/{sucursalId}/productos/{productoId}`.
 - [ ] IaC con Terraform — **no implementado**, fuera de alcance de esta entrega.
-- [ ] Despliegue en la nube — **no implementado**, fuera de alcance de esta entrega.
+- [x] Despliegue en la nube — API en Render conectada a MongoDB Atlas. URL pública: https://franquicias-cj97.onrender.com
 
 ## Arquitectura
 
@@ -90,6 +92,16 @@ Esto levanta un contenedor de MongoDB 7.0 y la API (esperando a que Mongo esté 
 .\mvnw.cmd spring-boot:run   # Windows
 ./mvnw spring-boot:run       # Mac/Linux
 ```
+
+## Despliegue en la nube (demo pública)
+
+**URL base**: https://franquicias-cj97.onrender.com
+
+> **Nota**: el servicio corre en el tier gratuito de Render, que "duerme" tras ~15 minutos de inactividad. La primera petición después de un período de inactividad puede tardar 30-90 segundos en responder mientras el servicio arranca — esto es esperado, no un error.
+
+**Nota técnica**: la base de datos usada en este despliegue es MongoDB Atlas (tier M0 gratuito), separada de la instancia local de Docker usada en desarrollo.
+
+Para probar esta URL con la colección de Postman, cambiá la variable de colección `baseUrl` de `http://localhost:8080` a la URL de Render indicada arriba.
 
 ## Cómo probar la API
 
