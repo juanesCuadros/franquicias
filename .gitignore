@@ -1,19 +1,35 @@
-# IntelliJ IDEA
-.idea/
-*.iml
-
-# Maven
 target/
-
-# Java
+!**/src/main/**/target/
+!**/src/test/**/target/
 *.class
-
-# Logs
+HELP.md
+.mvn/wrapper/maven-wrapper.jar
+.idea/
+*.iws
+*.iml
+*.ipr
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+.vscode/
 *.log
-
-# OS
 .DS_Store
 Thumbs.db
-
-# Claude Code
 .claude/
+
+# Postman desktop app (local workspace sync scaffolding)
+**/.postman/
+docs/postman/postman/
+/postman/
