@@ -1,0 +1,495 @@
+{
+  "info": {
+    "_postman_id": "8f6e5f5a-2f0d-4c9d-9a7a-1a5b2f0e6d3c",
+    "name": "Franquicias API",
+    "description": "Colección de demo para franquicias-api (Spring Boot 4.1, WebFlux + MongoDB Reactivo, arquitectura hexagonal). Las carpetas están ordenadas como flujo de demostración: crear una franquicia, agregarle una sucursal, agregarle productos, consultar el producto de mayor stock por sucursal y, por último, ver cómo responde la API ante errores. Las requests que crean o modifican recursos guardan automáticamente los ids relevantes (franquiciaId, sucursalId, productoId, productoId2) en variables de colección para que el resto de las requests los reutilicen sin edición manual.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080", "type": "string" },
+    { "key": "franquiciaId", "value": "", "type": "string" },
+    { "key": "sucursalId", "value": "", "type": "string" },
+    { "key": "productoId", "value": "", "type": "string" },
+    { "key": "productoId2", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "1. Franquicias",
+      "item": [
+        {
+          "name": "Crear franquicia",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "pm.collectionVariables.set(\"franquiciaId\", jsonData.id);",
+                  "",
+                  "pm.test(\"La franquicia se crea con lista de sucursales vacia\", function () {",
+                  "    pm.expect(jsonData.sucursales).to.be.an(\"array\").that.is.empty;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Franquicia Cuadros\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/franquicias",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "franquicias"]
+            },
+            "description": "Crea una franquicia nueva a partir de su nombre. Se espera 201 Created con el recurso creado (id generado por el servidor y lista de sucursales vacía). El id devuelto se guarda en la variable de colección franquiciaId para usarlo en el resto de las requests."
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar nombre de franquicia",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"El nombre se actualizo\", function () {",
+                  "    pm.expect(pm.response.json().nombre).to.eql(\"Franquicia Juan Cuadros\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Franquicia Juan Cuadros\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/franquicias/{{franquiciaId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "franquicias", "{{franquiciaId}}"]
+            },
+            "description": "Renombra la franquicia creada en el paso anterior. Se espera 200 OK con la franquicia completa reflejando el nuevo nombre."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "2. Sucursales",
+      "item": [
+        {
+          "name": "Agregar sucursal",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "const sucursales = jsonData.sucursales;",
+                  "const ultimaSucursal = sucursales[sucursales.length - 1];",
+                  "pm.collectionVariables.set(\"sucursalId\", ultimaSucursal.id);",
+                  "",
+                  "pm.test(\"La sucursal agregada tiene el nombre esperado\", function () {",
+                  "    pm.expect(ultimaSucursal.nombre).to.eql(\"Sucursal Centro\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Sucursal Centro\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/franquicias/{{franquiciaId}}/sucursales",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "franquicias", "{{franquiciaId}}", "sucursales"]
+            },
+            "description": "Agrega una sucursal a la franquicia guardada en franquiciaId. Se espera 201 Created con la franquicia completa, incluyendo la nueva sucursal al final del arreglo \"sucursales\". El id de esa sucursal se guarda en sucursalId."
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar nombre de sucursal",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Sucursal La esmeralda\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/franquicias/{{franquiciaId}}/sucursales/{{sucursalId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "franquicias", "{{franquiciaId}}", "sucursales", "{{sucursalId}}"]
+            },
+            "description": "Renombra la sucursal guardada en sucursalId. Se espera 200 OK con la franquicia completa mostrando el nuevo nombre de esa sucursal."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "3. Productos",
+      "item": [
+        {
+          "name": "Agregar producto 1 (Papas)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "const sucursal = jsonData.sucursales.find(s => s.id === pm.collectionVariables.get(\"sucursalId\"));",
+                  "const ultimoProducto = sucursal.productos[sucursal.productos.length - 1];",
+                  "pm.collectionVariables.set(\"productoId\", ultimoProducto.id);",
+                  "",
+                  "pm.test(\"El producto agregado tiene el stock esperado\", function () {",
+                  "    pm.expect(ultimoProducto.stock).to.eql(50);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Papas\",\n  \"stock\": 50\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/franquicias/{{franquiciaId}}/sucursales/{{sucursalId}}/productos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "franquicias", "{{franquiciaId}}", "sucursales", "{{sucursalId}}", "productos"]
+            },
+            "description": "Agrega el primer producto (Papas, stock 50) a la sucursal guardada en sucursalId. Se espera 201 Created con la franquicia completa. El id del producto recién creado se guarda en productoId."
+          },
+          "response": []
+        },
+        {
+          "name": "Agregar producto 2 (Platanos)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "const sucursal = jsonData.sucursales.find(s => s.id === pm.collectionVariables.get(\"sucursalId\"));",
+                  "const ultimoProducto = sucursal.productos[sucursal.productos.length - 1];",
+                  "pm.collectionVariables.set(\"productoId2\", ultimoProducto.id);",
+                  "",
+                  "pm.test(\"El producto agregado tiene el stock esperado\", function () {",
+                  "    pm.expect(ultimoProducto.stock).to.eql(120);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Platanos\",\n  \"stock\": 120\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/franquicias/{{franquiciaId}}/sucursales/{{sucursalId}}/productos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "franquicias", "{{franquiciaId}}", "sucursales", "{{sucursalId}}", "productos"]
+            },
+            "description": "Agrega un segundo producto (Platanos, stock 120) a la misma sucursal, con más stock que \"Papas\", para que la consulta de \"mayor stock por sucursal\" tenga datos distintos que comparar. Se espera 201 Created. El id se guarda en productoId2."
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar stock de producto",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"stock\": 75\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/franquicias/{{franquiciaId}}/sucursales/{{sucursalId}}/productos/{{productoId}}/stock",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "franquicias", "{{franquiciaId}}", "sucursales", "{{sucursalId}}", "productos", "{{productoId}}", "stock"]
+            },
+            "description": "Actualiza el stock del producto guardado en productoId (Papas) de 50 a 75. Se espera 200 OK con la franquicia completa reflejando el nuevo stock."
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar nombre de producto",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Papa parda\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/franquicias/{{franquiciaId}}/sucursales/{{sucursalId}}/productos/{{productoId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "franquicias", "{{franquiciaId}}", "sucursales", "{{sucursalId}}", "productos", "{{productoId}}"]
+            },
+            "description": "Renombra el producto guardado en productoId de \"Papas\" a \"Papa parda\". Se espera 200 OK con la franquicia completa mostrando el nuevo nombre."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "4. Consultas",
+      "item": [
+        {
+          "name": "Producto con más stock por sucursal",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"La respuesta es un arreglo\", function () {",
+                  "    pm.expect(pm.response.json()).to.be.an(\"array\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/franquicias/{{franquiciaId}}/productos/mas-stock",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "franquicias", "{{franquiciaId}}", "productos", "mas-stock"]
+            },
+            "description": "Devuelve, por cada sucursal de la franquicia, el producto con mayor stock. Se espera 200 OK con un arreglo de objetos {sucursalId, sucursalNombre, producto}. En este punto los dos productos todavía existen (\"Papa parda\" con stock 75 y \"Platanos\" con stock 120), así que el producto ganador de la sucursal debería ser \"Platanos\" con stock 120 — se ve claramente que la consulta elige el de mayor stock entre varios."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "5. Eliminar producto",
+      "item": [
+        {
+          "name": "Eliminar producto",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 204\", function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/franquicias/{{franquiciaId}}/sucursales/{{sucursalId}}/productos/{{productoId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "franquicias", "{{franquiciaId}}", "sucursales", "{{sucursalId}}", "productos", "{{productoId}}"]
+            },
+            "description": "Ahora que ya se demostró la consulta de mayor stock (donde \"Platanos\" ganaba con 120), se elimina el producto guardado en productoId — el de MENOR stock (originalmente \"Papas\", renombrado a \"Papa parda\" con stock 75) — para no arruinar el ejemplo anterior. Se espera 204 No Content, sin cuerpo en la respuesta."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "6. Casos de error",
+      "item": [
+        {
+          "name": "Agregar sucursal a franquicia inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 404\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "pm.test(\"El body indica que no se encontro\", function () {",
+                  "    pm.expect(jsonData.error).to.eql(\"NO_ENCONTRADO\");",
+                  "    pm.expect(jsonData.mensaje).to.include(\"no encontrada\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Sucursal Fantasma\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/franquicias/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/sucursales",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "franquicias", "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "sucursales"]
+            },
+            "description": "Intenta agregar una sucursal a un id de franquicia inventado (aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee) que no existe en la base de datos. Demuestra el manejo de FranquiciaNoEncontradaException del GlobalExceptionHandler. Se espera 404 Not Found con body {\"error\": \"NO_ENCONTRADO\", \"mensaje\": \"...\"}."
+          },
+          "response": []
+        },
+        {
+          "name": "Crear franquicia con nombre vacío",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "pm.test(\"El body indica un error de validacion\", function () {",
+                  "    pm.expect(jsonData.error).to.eql(\"VALIDACION\");",
+                  "    pm.expect(jsonData.campos).to.have.property(\"nombre\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/franquicias",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "franquicias"]
+            },
+            "description": "Intenta crear una franquicia con el campo \"nombre\" vacío, violando la validación @NotBlank del request. Demuestra el manejo de WebExchangeBindException del GlobalExceptionHandler. Se espera 400 Bad Request con body {\"error\": \"VALIDACION\", \"mensaje\": \"...\", \"campos\": {\"nombre\": \"...\"}}."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
